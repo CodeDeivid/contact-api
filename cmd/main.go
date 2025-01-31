@@ -56,7 +56,11 @@ func main() {
 
 	// Configurar rotas
 	r := gin.Default()
-	r.POST("/contact", contactHandler.CreateContact)
+	r.POST("/contacts", contactHandler.CreateContact)
+  r.GET("/contacts", contactHandler.GetAllContacts)
+  r.GET("/contacts/:id", contactHandler.GetContactByID)
+  r.PUT("/contacts/:id", contactHandler.UpdateContact)
+  r.DELETE("/contacts/:id", contactHandler.DeleteContact)
 
 	// Executar servidor
 	r.Run(":8080")
