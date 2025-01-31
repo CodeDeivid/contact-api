@@ -11,6 +11,10 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 5s
+      retries: 5
 
   goapp:
     build: .
@@ -23,7 +27,8 @@ services:
       DB_NAME: ${DB_NAME}
       DB_PORT: ${DB_PORT}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:
