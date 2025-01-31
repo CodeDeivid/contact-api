@@ -34,7 +34,10 @@ func (r *contactRepository) FindAll() ([]model.Contact, error) {
 func (r *contactRepository) FindByID(id uint) (*model.Contact, error) {
     var contact model.Contact
     err := r.db.First(&contact, id).Error
-    return &contact, err
+    if err != nil {
+        return nil, err
+    }
+    return &contact, nil
 }
 
 func (r *contactRepository) Update(contact *model.Contact) error {
