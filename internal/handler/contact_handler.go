@@ -9,7 +9,6 @@ import (
     "strconv"
 
     "github.com/gin-gonic/gin"
-    "github.com/go-playground/validator/v10"
     "gorm.io/gorm"
 )
 
@@ -30,15 +29,12 @@ func (h *ContactHandler) CreateContact(c *gin.Context) {
     var contact model.Contact
 
     if err := c.ShouldBindJSON(&contact); err != nil {
-        var ve validator.ValidationErrors
         if err.Error() == "EOF" {
             c.JSON(http.StatusBadRequest, gin.H{"error": "Body da requisição está vazio"})
             return
         }
-        if errors.As(err, &ve) {
-            c.JSON(http.StatusBadRequest, gin.H{"error": "Formato JSON inválido"})
-            return
-        }
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Formato JSON inválido"})
+        return
     }
 
     if errors := h.validator.ValidateContact(&contact); len(errors) > 0 {
@@ -47,7 +43,7 @@ func (h *ContactHandler) CreateContact(c *gin.Context) {
     }
 
     if err := h.repo.Create(&contact); err != nil {
-        if err.Error() == "duplicated key value violates unique constraint" {
+        if errors.Is(err, gorm.ErrDuplicatedKey) {
             c.JSON(http.StatusConflict, gin.H{"error": "Email ou telefone já cadastrado"})
             return
         }
